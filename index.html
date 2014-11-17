@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Leap Motion JavaScript Sample</title>
+	<style>
+		body {
+			font-family: Helvetica Neue, sans-serif;
+			font-size: 200%;
+			margin-left: 4em;
+			margin-top: 2em;
+		}
+		dd { 
+			font-weight: bold
+		}
+		#game-in-progress dd {
+			padding-bottom: 1em;
+		}
+		
+		#game-over { 
+			display: none;
+			text-align: center;
+		}
+		#game-over dd { 
+			margin: 0;
+		}
+		
+		.how-many { display: none }
+		
+	</style>
+</head>
+<body>
+
+	<div id="game-in-progress">
+		<dl>
+			<dt>Hold up this many fingers:</dt>
+			<dd class="info" id="count-prompt"></dd>
+			<dt>Move counter:</dt>
+			<dd id="move-counter"></dd>
+			<dt class="how-many">How many fingers did you hold up?</dt>
+			<dd id="finger-count" class="how-many"></dd>
+			<dt>Timer this game:</dt>
+			<dd id="timer"></dd>
+		</dl>
+		<p id="win" class="alert alert-success" style="display:none">YOU DID IT!</p>
+	</div><!-- #game-in-progress -->
+	
+	<div id="game-over">
+		<h1>Game Over</h1>
+		<dl>
+			<dt>Your Score:</dt>
+			<dd id="final-score"></dd>
+		</dl>
+		<p><a href="">New Game</a></p>
+	</div><!-- #game-over -->
+	
+
+	<script src="http://js.leapmotion.com/leap-0.6.3.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="leap-skeleton.js"></script>
+
+	<script type="text/javascript">
+	
+	$(document).on("frame", function( event, frame, previousFrame ) {
+
+		var fingerCount = 0;
+		if (frame.pointables.length > 0) {
+			for (var i = 0; i < frame.pointables.length; i++) {
+				if (! frame.pointables[i].tool && frame.pointables[i].extended )
+					fingerCount++;
+			}
+		}
+
+		if( fingerCount == fingerCountGoal ){
+			$("p#win").show().hide(5000);
+			newMove();
+		}
+
+	});
+		
+	function newMove(){
+		moveCounter++;
+		if( moveCounter <= MAX_MOVES){
+			fingerCountGoal = Math.floor(Math.random()*10)+1;
+			$("#count-prompt").html(fingerCountGoal);							
+		} else {
+			$("#game-in-progress").hide();
+			$("#game-over").show();
+			clearInterval(scorekeeper);
+		}
+		$("#move-counter").html(moveCounter+"/"+MAX_MOVES);
+	}
+	
+	$( document ).ready(function() {
+
+		$("p#win").hide();
+
+		MAX_MOVES=3;
+		startTime = Date.now();
+		fingerCountGoal = -1;
+		moveCounter = 0;
+		
+		newMove();
+		scorekeeper = 
+			setInterval(function(){
+				var timer = (Date.now() - startTime)/1000;
+				$("#timer").html(timer);
+				$("#final-score").html(timer);
+			},100);
+	});
+	</script>
+
+</body>
+</html>
