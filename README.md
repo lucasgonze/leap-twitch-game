@@ -1,4 +1,3 @@
-# Contents of this directory
 
 A twitch-y game for learning Leap Motion coding.
 
